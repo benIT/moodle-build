@@ -7,7 +7,8 @@
     <target name="download-moodle-core">
         <!--<gitclone singleBranch="true" repository="https://github.com/moodle/moodle" branch="v3.5.1" targetPath="build/moodle"/>-->
         <echo message="retrieving sources"/>
-        <exec command="wget https://codeload.github.com/moodle/moodle/tar.gz/v3.5.1 -P build" passthru="true"/>
+        <exec command="wget --quiet https://codeload.github.com/moodle/moodle/tar.gz/v3.5.1 -P build" passthru="true"/>
+        <exec command="echo 'this is an awesome product of build' > build/artefact" passthru="true"/>
         <!--<exec  command="tar -xzf build/v3.5.1 -C build/" passthru="true"/>-->
     </target>
 
