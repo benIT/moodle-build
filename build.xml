@@ -1,0 +1,19 @@
+<project name="moodle build" default="all" basedir="." description="generate clean build for moodle ">
+
+    <target name="cleanup">
+        <delete dir="build" includeemptydirs="true" verbose="false" failonerror="false"/>
+    </target>
+
+    <target name="download-moodle-core">
+        <!--<gitclone singleBranch="true" repository="https://github.com/moodle/moodle" branch="v3.5.1" targetPath="build/moodle"/>-->
+        <echo message="retrieving sources"/>
+        <exec command="wget https://codeload.github.com/moodle/moodle/tar.gz/v3.5.1 -P build" passthru="true"/>
+        <!--<exec  command="tar -xzf build/v3.5.1 -C build/" passthru="true"/>-->
+    </target>
+
+    <target name="all" description="call all subtasks to generate an installable delivery">
+        <phingcall target="cleanup"/>
+        <phingcall target="download-moodle-core"/>
+    </target>
+
+</project>
