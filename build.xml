@@ -1,20 +1,54 @@
-<project name="moodle build" default="all" basedir="." description="generate clean build for moodle ">
+<project name="moodle build" default="all" basedir="." description="Phing build job for moodle. Download moodle core and plugins.">
+
+    <property name="build.dir" value="build"/>
+    <property name="moodle.path" value="${build.dir}/moodle"/>
 
     <target name="cleanup">
-        <delete dir="build" includeemptydirs="true" verbose="false" failonerror="false"/>
+        <delete dir="${build.dir}" includeemptydirs="true" verbose="false" failonerror="false"/>
+        <mkdir dir="${build.dir}"/>
     </target>
 
     <target name="download-moodle-core">
-        <!--<gitclone singleBranch="true" repository="https://github.com/moodle/moodle" branch="v3.5.1" targetPath="build/moodle"/>-->
-        <echo message="retrieving sources"/>
-        <exec command="wget --quiet https://codeload.github.com/moodle/moodle/tar.gz/v3.5.1 -P build" passthru="true"/>
-        <exec command="echo 'this is an awesome product of build' > build/artefact" passthru="true"/>
-        <!--<exec  command="tar -xzf build/v3.5.1 -C build/" passthru="true"/>-->
+        <property name="moodle.repository" value="git@github.com:moodle/moodle.git"/>
+        <property name="moodle.version" value="7223cd2"/>
+        <echo message="retrieving sources for moodle core at revision ${moodle.version}"/>
+        <exec dir="${build.dir}" command="git clone --depth=1 ${moodle.repository} ${moodle.version}" passthru="true"/>
+        <exec command="mv ${build.dir}/${moodle.version} ${moodle.path}" passthru="true"/>
+        <delete dir="${moodle.path}/.git" includeemptydirs="true" verbose="false" failonerror="false"/>
+    </target>
+
+    <target name="download-plugin-configurable-reports">
+        <property name="configurable-reports.repository" value="git@github.com:jleyva/moodle-block_configurablereports.git"/>
+        <property name="configurable-reports.version" value="3.1.1"/>
+        <property name="configurable-reports.path" value="${moodle.path}/blocks/configurable_reports/"/>
+        <exec dir="${build.dir}" command="git clone --depth=1 ${configurable-reports.repository} ${configurable-reports.version}" passthru="true"/>
+        <exec command="mv ${build.dir}/${configurable-reports.version} ${configurable-reports.path}" passthru="true"/>
+        <delete dir="${configurable-reports.path}/.git" includeemptydirs="true" verbose="false" failonerror="false"/>
+    </target>
+
+    <target name="download-plugin-custom-certificate">
+        <property name="custom-certificate.repository" value="git@github.com:markn86/moodle-mod_customcert.git"/>
+        <property name="custom-certificate.version" value="v3.5.4 "/>
+        <property name="custom-certificate.path" value="${moodle.path}/mod/customcert"/>
+        <exec dir="${build.dir}" command="git clone --depth=1 ${custom-certificate.repository} ${custom-certificate.version}" passthru="true"/>
+        <exec command="mv ${build.dir}/${custom-certificate.version} ${custom-certificate.path}" passthru="true"/>
+        <delete dir="${custom-certificate.path}/.git" includeemptydirs="true" verbose="false" failonerror="false"/>
+    </target>
+
+    <target name="dist">
+        <tar destfile="${build.dir}/moodle.tar.gz" compression="gzip">
+            <fileset dir="${moodle.path}">
+                <include name="*"/>
+            </fileset>
+        </tar>
     </target>
 
     <target name="all" description="call all subtasks to generate an installable delivery">
         <phingcall target="cleanup"/>
         <phingcall target="download-moodle-core"/>
+        <phingcall target="download-plugin-configurable-reports"/>
+        <phingcall target="download-plugin-custom-certificate"/>
+        <phingcall target="dist"/>
     </target>
 
 </project>
